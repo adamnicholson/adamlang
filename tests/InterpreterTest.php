@@ -37,7 +37,6 @@ CODE;
 
     public function test_print_twice()
     {
-        $this->markTestSkipped();
         $code = <<<CODE
 Print "hello"
 Print "bar"

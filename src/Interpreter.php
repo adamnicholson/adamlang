@@ -30,13 +30,14 @@ class Interpreter
         $prev = new Token(Token::TYPE_BOF, "");
 
         while (!$stream->ended()) {
-            
+
             switch ($prev->getType()) {
 
                 case Token::TYPE_EOF:
                     break 2;
 
                 case Token::TYPE_BOF:
+                case Token::TYPE_EOL:
                     $prev = new Token(Token::TYPE_BOL);
                     break;
 
@@ -51,12 +52,12 @@ class Interpreter
                         throw new \RuntimeException("Function " . $prev->getValue() . " does not exist at " . $class);
                     }
                     $fn = $container->make($class);
-                    $nextToken = $fn->__invoke($prev);
+                    $prev = $fn->__invoke($prev);
 
                     break;
 
                 default:
-                    throw new \RuntimeException("Unexpected token " . $prev->getType() . " with value " . $prev->getValue());
+                    throw new \RuntimeException("Unexpected " . $prev->getType());
             }
 
         }
