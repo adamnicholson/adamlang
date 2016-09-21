@@ -101,4 +101,15 @@ CODE;
         $this->interpreter->run($code, $in = new InMemoryIO(), $out = new InMemoryIO);
         $this->assertEquals("lorem ipsumbar", $out->readAll());
     }
+
+    public function test_infinite_layers_of_nested_functions()
+    {
+        $code = <<<CODE
+Print (Concat (Lorem) " - " (Concat (Lorem) "!!!")) "~~" (Lorem)
+CODE;
+        $code = new InMemoryIO($code);
+
+        $this->interpreter->run($code, $in = new InMemoryIO(), $out = new InMemoryIO);
+        $this->assertEquals("lorem ipsum - lorem ipsum!!!~~lorem ipsum", $out->readAll());
+    }
 }
