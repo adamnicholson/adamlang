@@ -21,24 +21,24 @@ class Tokenizer
     public function next(Token $previous): Token
     {
         switch ($previous->getType()) {
-            case Token::TYPE_BOF:
-            case Token::TYPE_BOL:
-                return new Token(Token::TYPE_FUNCTION, $this->readTil(" "));
+            case Token::T_BOF:
+            case Token::T_BOL:
+                return new Token(Token::T_FUNCTION, $this->readTil(" "));
                 break;
 
-            case Token::TYPE_FUNCTION:
-                return new Token(Token::TYPE_FUNCTION_ARG_SEPARATOR, $this->readTil('"'));
+            case Token::T_FUNCTION:
+                return new Token(Token::T_FUNCTION_ARG_SEPARATOR, $this->readTil('"'));
                 break;
 
-            case Token::TYPE_FUNCTION_ARG_SEPARATOR:
+            case Token::T_FUNCTION_ARG_SEPARATOR:
                 $this->stream->read(); // "
-                $token = new Token(Token::TYPE_STRING_LITERAL, $this->readTil('"'));
+                $token = new Token(Token::T_FUNCTION_ARG, $this->readTil('"'));
                 $this->stream->read(); // "
                 return $token;
                 break;
 
-            case Token::TYPE_STRING_LITERAL:
-                return new Token(Token::TYPE_EOL, $this->stream->read());
+            case Token::T_FUNCTION_ARG:
+                return new Token(Token::T_EOL, $this->stream->read());
                 break;
 
             default:

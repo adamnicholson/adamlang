@@ -27,25 +27,25 @@ class Interpreter
         $tokenizer = $container->make(Tokenizer::class);
         $container->instance(Tokenizer::class, $tokenizer);
 
-        $prev = new Token(Token::TYPE_BOF, "");
+        $prev = new Token(Token::T_BOF, "");
 
         while (!$stream->ended()) {
 
             switch ($prev->getType()) {
 
-                case Token::TYPE_EOF:
+                case Token::T_EOF:
                     break 2;
 
-                case Token::TYPE_BOF:
-                case Token::TYPE_EOL:
-                    $prev = new Token(Token::TYPE_BOL);
+                case Token::T_BOF:
+                case Token::T_EOL:
+                    $prev = new Token(Token::T_BOL);
                     break;
 
-                case Token::TYPE_BOL:
+                case Token::T_BOL:
                     $prev = $tokenizer->next($prev); // should be function
                     break;
 
-                case Token::TYPE_FUNCTION:
+                case Token::T_FUNCTION:
 
                     $class = __NAMESPACE__."\\Functions\\" . $prev->getValue() . "Function";
                     if (!class_exists($class)) {
