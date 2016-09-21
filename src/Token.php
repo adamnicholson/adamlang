@@ -13,6 +13,7 @@ class Token
     const T_BOL = "T_BOL";
     const T_STRING_LITERAL = "T_STRING_LITERAL";
     const T_EXPRESSION = "T_EXPRESSION";
+    const T_INLINE_EXPRESSION = "T_INLINE_EXPRESSION";
 
     /**
      * @var string

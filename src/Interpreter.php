@@ -78,6 +78,10 @@ class Interpreter
                             $args[] = $prev->getValue();
                         } elseif ($prev->getType() === Token::T_EXPRESSION) {
                             $args[] = $this->evaluateExpression($prev, $input, $output);
+                        } elseif ($prev->getType() === Token::T_INLINE_EXPRESSION) {
+                            $args[] = function () use ($prev, $input, $output) {
+                                $this->evaluateExpression($prev, $input, $output);
+                            };
                         } else {
                             throw new \RuntimeException("Only " . Token::T_STRING_LITERAL . " can be passed to functions - given " . $prev->getType());
                         }

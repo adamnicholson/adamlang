@@ -52,26 +52,17 @@ class Tokenizer
                     return $token;
                 }
 
-                if ($this->stream->peek() === '(') {
-
+                if ($this->stream->peek() === '{') {
                     $this->stream->read(); // (
+                    $value = $this->readTilLayerEnds('{', '}');
+                    $token = new Token(Token::T_INLINE_EXPRESSION, $value);
+                    $this->stream->read(); // )
+                    return $token;
+                }
 
-                    $value = "";
-                    $layers = 0;
-                    while (true) {
-                        if ($this->stream->peek() === '(') {
-                            $layers++;
-                        }
-                        if ($this->stream->peek() === ')') {
-                            if ($layers === 0) {
-                                break;
-                            }
-                            $layers--;
-                        }
-
-                        $value .= $this->stream->read();
-                    }
-
+                if ($this->stream->peek() === '(') {
+                    $this->stream->read(); // (
+                    $value = $this->readTilLayerEnds('(', ')');
                     $token = new Token(Token::T_EXPRESSION, $value);
                     $this->stream->read(); // )
                     return $token;
@@ -85,6 +76,7 @@ class Tokenizer
                 break;
 
             case Token::T_EXPRESSION:
+            case Token::T_INLINE_EXPRESSION:
             case Token::T_STRING_LITERAL:
             case Token::T_FUNCTION_ARG:
                 if ($this->stream->ended()) {
@@ -111,6 +103,29 @@ class Tokenizer
     {
         $value = "";
         while (($char = $this->stream->peek()) != $ends) {
+            $value .= $this->stream->read();
+        }
+        return $value;
+    }
+
+    /**
+     * @return string
+     */
+    private function readTilLayerEnds($open, $close)
+    {
+        $value = "";
+        $layers = 0;
+        while (true) {
+            if ($this->stream->peek() === $open) {
+                $layers++;
+            }
+            if ($this->stream->peek() === $close) {
+                if ($layers === 0) {
+                    break;
+                }
+                $layers--;
+            }
+
             $value .= $this->stream->read();
         }
         return $value;

@@ -112,4 +112,15 @@ CODE;
         $this->interpreter->run($code, $in = new InMemoryIO(), $out = new InMemoryIO);
         $this->assertEquals("lorem ipsum - lorem ipsum!!!~~lorem ipsum", $out->readAll());
     }
+
+    public function test_loops()
+    {
+        $code = <<<CODE
+Loop "5" {Print "1"}
+CODE;
+        $code = new InMemoryIO($code);
+
+        $this->interpreter->run($code, $in = new InMemoryIO(), $out = new InMemoryIO);
+        $this->assertEquals("11111", $out->readAll());
+    }
 }
