@@ -2,7 +2,7 @@
 
 namespace Adamnicholson\Adamlang;
 
-use Adamnicholson\Adamlang\Functions\PrintFunction;
+use Illuminate\Container\Container;
 
 class Interpreter
 {
@@ -18,6 +18,12 @@ class Interpreter
      */
     public function run(Stream $stream, Input $input, Output $output): int
     {
+        $container = new Container;
+        $container->instance(Input::class, $input);
+        $container->instance(Output::class, $output);
+        $container->instance(Stream::class, $stream);
+        $container->instance(Interpreter::class, $this);
+
         $prev = new Token(Token::TYPE_BOF, "");
 
         while (!$stream->ended()) {
@@ -35,7 +41,8 @@ class Interpreter
                     if (!class_exists($class)) {
                         throw new \RuntimeException("Function " . $token->getValue() . " does not exist at " . $class);
                     }
-                    $class::expr($stream, $output, $token, $this);
+                    $fn = $container->make($class);
+                    $fn->__invoke($token);
 
                     break;
 
