@@ -79,4 +79,15 @@ CODE;
         $this->interpreter->run($code, $in = new InMemoryIO(), $out = new InMemoryIO);
         $this->assertEquals("lorem ipsum", $out->readAll());
     }
+
+    public function test_nested_functions_with_multiple_args()
+    {
+        $code = <<<CODE
+Print (Concat "foo" "bar")
+CODE;
+        $code = new InMemoryIO($code);
+
+        $this->interpreter->run($code, $in = new InMemoryIO(), $out = new InMemoryIO);
+        $this->assertEquals("foobar", $out->readAll());
+    }
 }
