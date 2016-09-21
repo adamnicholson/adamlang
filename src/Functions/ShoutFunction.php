@@ -41,6 +41,7 @@ class ShoutFunction
         $space = $this->tokenizer->next($token); // assert space?
         $string = $this->tokenizer->next($space); // assert string?
         $this->output->write(strtoupper($string->getValue()));
-        return $token;
+        $eol = $this->tokenizer->next($string); // assert EOL?
+        return $eol;
     }
 }

@@ -41,6 +41,7 @@ class PrintFunction
         $space = $this->tokenizer->next($token); // assert space?
         $string = $this->tokenizer->next($space); // assert string?
         $this->output->write($string->getValue());
-        return $token;
+        $eol = $this->tokenizer->next($string); // assert EOL?
+        return $eol;
     }
 }

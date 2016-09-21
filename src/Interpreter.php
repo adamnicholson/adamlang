@@ -30,30 +30,35 @@ class Interpreter
         $prev = new Token(Token::TYPE_BOF, "");
 
         while (!$stream->ended()) {
+            
+            switch ($prev->getType()) {
 
-            $token = $tokenizer->next($prev);
+                case Token::TYPE_EOF:
+                    break 2;
 
-            if ($token->getType() === Token::TYPE_EOF) {
-                break;
-            }
+                case Token::TYPE_BOF:
+                    $prev = new Token(Token::TYPE_BOL);
+                    break;
 
-            switch ($token->getType()) {
+                case Token::TYPE_BOL:
+                    $prev = $tokenizer->next($prev); // should be function
+                    break;
+
                 case Token::TYPE_FUNCTION:
 
-                    $class = __NAMESPACE__."\\Functions\\" . $token->getValue() . "Function";
+                    $class = __NAMESPACE__."\\Functions\\" . $prev->getValue() . "Function";
                     if (!class_exists($class)) {
-                        throw new \RuntimeException("Function " . $token->getValue() . " does not exist at " . $class);
+                        throw new \RuntimeException("Function " . $prev->getValue() . " does not exist at " . $class);
                     }
                     $fn = $container->make($class);
-                    $fn->__invoke($token);
+                    $nextToken = $fn->__invoke($prev);
 
                     break;
 
                 default:
-                    throw new \RuntimeException("Unexpected token " . $token->getType() . " with value " . $token->getValue());
+                    throw new \RuntimeException("Unexpected token " . $prev->getType() . " with value " . $prev->getValue());
             }
 
-            $prev = $token;
         }
 
         return 0;

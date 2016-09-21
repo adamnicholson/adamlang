@@ -4,15 +4,16 @@ namespace Adamnicholson\Adamlang;
 
 class Token
 {
-    const TYPE_FUNCTION = 1;
-    const TYPE_FUNCTION_ARG_SEPARATOR = 2;
-    const TYPE_STRING_LITERAL = 3;
-    const TYPE_BOF = 4;
-    const TYPE_EOF = 5;
-    const TYPE_EOL = 6;
+    const TYPE_FUNCTION = "T_FUNCTION";
+    const TYPE_FUNCTION_ARG_SEPARATOR = "T_FUNCTION_ARG_SEPARATOR";
+    const TYPE_STRING_LITERAL = "T_STRING_LITERAL";
+    const TYPE_BOF = "T_BOF";
+    const TYPE_EOF = "T_EOF";
+    const TYPE_EOL = "T_EOL";
+    const TYPE_BOL = "T_BOL";
 
     /**
-     * @var int
+     * @var string
      */
     private $type;
     /**
@@ -22,25 +23,25 @@ class Token
 
     /**
      * Token constructor.
-     * @param int $type
+     * @param string $type
      * @param string $value
      */
-    public function __construct(int $type, string $value)
+    public function __construct(string $type, string $value = null)
     {
         $this->type = $type;
         $this->value = $value;
     }
 
     /**
-     * @return int
+     * @return string
      */
-    public function getType()
+    public function getType(): string
     {
         return $this->type;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getValue(): string
     {

@@ -22,6 +22,7 @@ class Tokenizer
     {
         switch ($previous->getType()) {
             case Token::TYPE_BOF:
+            case Token::TYPE_BOL:
                 return new Token(Token::TYPE_FUNCTION, $this->readTil(" "));
                 break;
 
@@ -36,8 +37,12 @@ class Tokenizer
                 return $token;
                 break;
 
+            case Token::TYPE_STRING_LITERAL:
+                return new Token(Token::TYPE_EOL, $this->stream->read());
+                break;
+
             default:
-                throw new \RuntimeException("Unexpected token");
+                throw new \RuntimeException("Unexpected " . $previous->getType());
 
         }
     }

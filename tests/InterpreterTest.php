@@ -34,4 +34,17 @@ CODE;
         $this->interpreter->run($code, $in = new InMemoryIO(), $out = new InMemoryIO);
         $this->assertEquals("HELLO", $out->readAll());
     }
+
+    public function test_print_twice()
+    {
+        $this->markTestSkipped();
+        $code = <<<CODE
+Print "hello"
+Print "bar"
+CODE;
+        $code = new InMemoryIO($code);
+
+        $this->interpreter->run($code, $in = new InMemoryIO(), $out = new InMemoryIO);
+        $this->assertEquals("hellobar", $out->readAll());
+    }
 }
