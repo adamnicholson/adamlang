@@ -23,23 +23,65 @@ class Tokenizer
         switch ($previous->getType()) {
             case Token::T_BOF:
             case Token::T_BOL:
-                return new Token(Token::T_FUNCTION, $this->readTil(" "));
-                break;
+                $value = "";
+                while (true) {
+                    if ($this->stream->ended() || $this->stream->peek() === " ") {
+                        break;
+                    }
+                    $value .= $this->stream->read();
+                }
+                return new Token(Token::T_FUNCTION, $value);
 
             case Token::T_FUNCTION:
-                return new Token(Token::T_FUNCTION_ARG_SEPARATOR, $this->readTil('"'));
-                break;
+
+                if ($this->stream->ended()) {
+                    return new Token(Token::T_EOF);
+                }
+
+                if ($this->stream->peek() === " ") {
+                    return new Token(Token::T_FUNCTION_ARG_SEPARATOR, $this->stream->read());
+                }
+
+                throw new \RuntimeException("Expected EOF or ARG_SEPARATOR");
 
             case Token::T_FUNCTION_ARG_SEPARATOR:
-                $this->stream->read(); // "
-                $token = new Token(Token::T_FUNCTION_ARG, $this->readTil('"'));
-                $this->stream->read(); // "
-                return $token;
+                if ($this->stream->peek() === '"') {
+                    $this->stream->read(); // "
+                    $token = new Token(Token::T_STRING_LITERAL, $this->readTil('"'));
+                    $this->stream->read(); // "
+                    return $token;
+                }
+
+                if ($this->stream->peek() === '(') {
+                    $this->stream->read(); // (
+                    $token = new Token(Token::T_EXPRESSION, $this->readTil(')'));
+                    $this->stream->read(); // )
+                    return $token;
+                }
+
+                throw new \RuntimeException("Unexpected " . $this->stream->peek() . ", expecting \" or (");
                 break;
 
             case Token::T_FUNCTION_ARG:
                 return new Token(Token::T_EOL, $this->stream->read());
                 break;
+
+            case Token::T_EXPRESSION:
+            case Token::T_STRING_LITERAL:
+            case Token::T_FUNCTION_ARG:
+                if ($this->stream->ended()) {
+                    return new Token(Token::T_EOF);
+                }
+
+                $nextChar = $this->stream->peek();
+
+                if ($nextChar === "\n") {
+                    return new Token(Token::T_EOL, $this->stream->read());
+                } elseif ($nextChar === " ") {
+                    return new Token(Token::T_FUNCTION_ARG_SEPARATOR, $this->stream->read());
+                } else {
+                    throw new \RuntimeException("Expecting EOL or ARG_SEPARATOR, got " . ord($nextChar));
+                }
 
             default:
                 throw new \RuntimeException("Unexpected " . $previous->getType());
@@ -50,16 +92,9 @@ class Tokenizer
     private function readTil(string $ends): string 
     {
         $value = "";
-
         while (($char = $this->stream->peek()) != $ends) {
-
-            if ($this->stream->ended()) {
-                throw new \RuntimeException("Unexpected end of stream after $value");
-            }
-
             $value .= $this->stream->read();
         }
-
         return $value;
     }
 }

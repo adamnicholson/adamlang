@@ -11,6 +11,8 @@ class Token
     const T_EOF = "T_EOF";
     const T_EOL = "T_EOL";
     const T_BOL = "T_BOL";
+    const T_STRING_LITERAL = "T_STRING_LITERAL";
+    const T_EXPRESSION = "T_EXPRESSION";
 
     /**
      * @var string

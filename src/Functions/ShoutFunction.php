@@ -2,10 +2,8 @@
 
 namespace Adamnicholson\Adamlang\Functions;
 
-use Adamnicholson\Adamlang\Interpreter;
 use Adamnicholson\Adamlang\Output;
 use Adamnicholson\Adamlang\Stream;
-use Adamnicholson\Adamlang\Token;
 use Adamnicholson\Adamlang\Tokenizer;
 
 class ShoutFunction
@@ -36,12 +34,8 @@ class ShoutFunction
         $this->tokenizer = $tokenizer;
     }
 
-    public function __invoke(Token $token)
+    public function __invoke(...$strings)
     {
-        $space = $this->tokenizer->next($token); // assert space?
-        $string = $this->tokenizer->next($space); // assert string?
-        $this->output->write(strtoupper($string->getValue()));
-        $eol = $this->tokenizer->next($string); // assert EOL?
-        return $eol;
+        $this->output->write(strtoupper(implode('', $strings)));
     }
 }

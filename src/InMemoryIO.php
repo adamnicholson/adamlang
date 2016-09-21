@@ -35,6 +35,10 @@ class InMemoryIO implements Stream, Input, Output
 
     public function peek(): string
     {
+        if ($this->ended()) {
+            throw new \OutOfBoundsException("Cannot read() from an ended stream");
+        }
+
         return substr($this->stream, 0, 1);
     }
 

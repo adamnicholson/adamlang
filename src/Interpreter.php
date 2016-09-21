@@ -13,11 +13,23 @@ class Interpreter
      *
      * @param Output $output
      *
-     * @return int
-     * Exit code. 0 for success, 1 for generic error.
+     * @return mixed
+     *  The return value of the last function which ran
      */
-    public function run(Stream $stream, Input $input, Output $output): int
+    public function run(Stream $stream, Input $input, Output $output)
     {
+        $script = '';
+        while (!$stream->ended()) {
+            $script .= $stream->read();
+        }
+
+        return $this->evaluateExpression(new Token(Token::T_EXPRESSION, $script), $input, $output);
+    }
+
+    private function evaluateExpression(Token $expr, Input $input, Output $output)
+    {
+        $stream = new InMemoryIO($expr->getValue());
+
         $container = new Container;
         $container->instance(Input::class, $input);
         $container->instance(Output::class, $output);
@@ -28,8 +40,9 @@ class Interpreter
         $container->instance(Tokenizer::class, $tokenizer);
 
         $prev = new Token(Token::T_BOF, "");
+        $returns = null;
 
-        while (!$stream->ended()) {
+        while (true) {
 
             switch ($prev->getType()) {
 
@@ -52,16 +65,35 @@ class Interpreter
                         throw new \RuntimeException("Function " . $prev->getValue() . " does not exist at " . $class);
                     }
                     $fn = $container->make($class);
-                    $prev = $fn->__invoke($prev);
+
+                    $args = [];
+
+                    $prev = $tokenizer->next($prev); // may be T_ARG_SEPARATOR or T_EOL or T_EOF
+
+                    while ($prev->getType() === Token::T_FUNCTION_ARG_SEPARATOR) {
+
+                        $prev = $tokenizer->next($prev); // get the ARGUMENT, ie. the thing after the T_ARG_SEPARATOR
+
+                        if ($prev->getType() === Token::T_STRING_LITERAL) {
+                            $args[] = $prev->getValue();
+                        } elseif ($prev->getType() === Token::T_EXPRESSION) {
+                            $args[] = $this->evaluateExpression($prev, $input, $output);
+                        } else {
+                            throw new \RuntimeException("Only " . Token::T_STRING_LITERAL . " can be passed to functions - given " . $prev->getType());
+                        }
+
+                        $prev = $tokenizer->next($prev);
+                    }
+
+                    $returns = call_user_func_array([$fn, '__invoke'], $args);
 
                     break;
 
                 default:
                     throw new \RuntimeException("Unexpected " . $prev->getType());
             }
-
         }
 
-        return 0;
+        return $returns;
     }
 }

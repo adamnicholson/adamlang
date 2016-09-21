@@ -13,6 +13,17 @@ class InterpreterTest extends \PHPUnit_Framework_TestCase
 
     }
 
+    public function test_values_can_be_returned()
+    {
+        $code = <<<CODE
+Lorem
+CODE;
+        $code = new InMemoryIO($code);
+
+        $returns = $this->interpreter->run($code, new InMemoryIO, new InMemoryIO);
+        $this->assertEquals("lorem ipsum", $returns);
+    }
+
     public function test_print()
     {
         $code = <<<CODE
@@ -45,5 +56,16 @@ CODE;
 
         $this->interpreter->run($code, $in = new InMemoryIO(), $out = new InMemoryIO);
         $this->assertEquals("hellobar", $out->readAll());
+    }
+
+    public function test_print_accepts_function_args()
+    {
+        $code = <<<CODE
+Print (Lorem)
+CODE;
+        $code = new InMemoryIO($code);
+
+        $this->interpreter->run($code, $in = new InMemoryIO(), $out = new InMemoryIO);
+        $this->assertEquals("lorem ipsum", $out->readAll());
     }
 }
