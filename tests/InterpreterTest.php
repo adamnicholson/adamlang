@@ -13,14 +13,25 @@ class InterpreterTest extends \PHPUnit_Framework_TestCase
 
     }
 
-    public function test_interpreter()
+    public function test_print()
     {
         $code = <<<CODE
-print "hello"
+Print "hello"
 CODE;
         $code = new InMemoryIO($code);
 
         $this->interpreter->run($code, $in = new InMemoryIO(), $out = new InMemoryIO);
         $this->assertEquals("hello", $out->readAll());
+    }
+
+    public function test_shout()
+    {
+        $code = <<<CODE
+Shout "hello"
+CODE;
+        $code = new InMemoryIO($code);
+
+        $this->interpreter->run($code, $in = new InMemoryIO(), $out = new InMemoryIO);
+        $this->assertEquals("HELLO", $out->readAll());
     }
 }

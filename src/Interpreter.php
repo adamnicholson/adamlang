@@ -2,6 +2,8 @@
 
 namespace Adamnicholson\Adamlang;
 
+use Adamnicholson\Adamlang\Functions\PrintFunction;
+
 class Interpreter
 {
     /**
@@ -29,11 +31,11 @@ class Interpreter
             switch ($token->getType()) {
                 case Token::TYPE_FUNCTION:
 
-                    if ($token->getValue() === "print") {
-                        $space = $this->next($token, $stream); // assert space?
-                        $string = $this->next($space, $stream); // assert string?
-                        $output->write($string->getValue());
+                    $class = __NAMESPACE__."\\Functions\\" . $token->getValue() . "Function";
+                    if (!class_exists($class)) {
+                        throw new \RuntimeException("Function " . $token->getValue() . " does not exist at " . $class);
                     }
+                    $class::expr($stream, $output, $token, $this);
 
                     break;
 
@@ -47,7 +49,7 @@ class Interpreter
         return 0;
     }
 
-    private function next(Token $previous, Stream $stream): Token
+    public function next(Token $previous, Stream $stream): Token
     {
         switch ($previous->getType()) {
             case Token::TYPE_BOF:
