@@ -6,6 +6,7 @@ use Adamnicholson\Adamlang\Interpreter;
 use Adamnicholson\Adamlang\Output;
 use Adamnicholson\Adamlang\Stream;
 use Adamnicholson\Adamlang\Token;
+use Adamnicholson\Adamlang\Tokenizer;
 
 class ShoutFunction
 {
@@ -18,7 +19,7 @@ class ShoutFunction
      */
     private $output;
     /**
-     * @var Interpreter
+     * @var Tokenizer
      */
     private $tokenizer;
 
@@ -26,9 +27,9 @@ class ShoutFunction
      * PrintFunction constructor.
      * @param Stream $stream
      * @param Output $output
-     * @param Interpreter $tokenizer
+     * @param Tokenizer $tokenizer
      */
-    public function __construct(Stream $stream, Output $output, Interpreter $tokenizer)
+    public function __construct(Stream $stream, Output $output, Tokenizer $tokenizer)
     {
         $this->stream = $stream;
         $this->output = $output;
@@ -37,8 +38,8 @@ class ShoutFunction
 
     public function __invoke(Token $token)
     {
-        $space = $this->tokenizer->next($token, $this->stream); // assert space?
-        $string = $this->tokenizer->next($space, $this->stream); // assert string?
+        $space = $this->tokenizer->next($token); // assert space?
+        $string = $this->tokenizer->next($space); // assert string?
         $this->output->write(strtoupper($string->getValue()));
         return $token;
     }

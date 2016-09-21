@@ -22,13 +22,16 @@ class Interpreter
         $container->instance(Input::class, $input);
         $container->instance(Output::class, $output);
         $container->instance(Stream::class, $stream);
-        $container->instance(Interpreter::class, $this);
+
+        /** @var Tokenizer $tokenizer */
+        $tokenizer = $container->make(Tokenizer::class);
+        $container->instance(Tokenizer::class, $tokenizer);
 
         $prev = new Token(Token::TYPE_BOF, "");
 
         while (!$stream->ended()) {
 
-            $token = $this->next($prev, $stream);
+            $token = $tokenizer->next($prev);
 
             if ($token->getType() === Token::TYPE_EOF) {
                 break;
@@ -54,45 +57,5 @@ class Interpreter
         }
 
         return 0;
-    }
-
-    public function next(Token $previous, Stream $stream): Token
-    {
-        switch ($previous->getType()) {
-            case Token::TYPE_BOF:
-                return new Token(Token::TYPE_FUNCTION, $this->readTil($stream, " "));
-                break;
-
-            case Token::TYPE_FUNCTION:
-                return new Token(Token::TYPE_FUNCTION_ARG_SEPARATOR, $this->readTil($stream, '"'));
-                break;
-
-            case Token::TYPE_FUNCTION_ARG_SEPARATOR:
-                $stream->read(); // "
-                $token = new Token(Token::TYPE_STRING_LITERAL, $this->readTil($stream, '"'));
-                $stream->read(); // "
-                return $token;
-                break;
-
-            default:
-                throw new \RuntimeException("Unexpected token");
-
-        }
-    }
-
-    private function readTil(Stream $stream, string $ends)
-    {
-        $value = "";
-
-        while (($char = $stream->peek()) != $ends) {
-
-            if ($stream->ended()) {
-                throw new \RuntimeException("Unexpected end of stream after $value");
-            }
-
-            $value .= $stream->read();
-        }
-
-        return $value;
     }
 }
