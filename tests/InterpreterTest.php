@@ -35,6 +35,17 @@ CODE;
         $this->assertEquals("hello", $out->readAll());
     }
 
+    public function test_with_multiple_args()
+    {
+        $code = <<<CODE
+Print "hello" "world"
+CODE;
+        $code = new InMemoryIO($code);
+
+        $this->interpreter->run($code, $in = new InMemoryIO(), $out = new InMemoryIO);
+        $this->assertEquals("helloworld", $out->readAll());
+    }
+
     public function test_shout()
     {
         $code = <<<CODE
