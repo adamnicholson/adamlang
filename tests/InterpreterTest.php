@@ -90,4 +90,15 @@ CODE;
         $this->interpreter->run($code, $in = new InMemoryIO(), $out = new InMemoryIO);
         $this->assertEquals("foobar", $out->readAll());
     }
+
+    public function test_2_layers_of_nested_functions()
+    {
+        $code = <<<CODE
+Print (Concat (Lorem) "bar")
+CODE;
+        $code = new InMemoryIO($code);
+
+        $this->interpreter->run($code, $in = new InMemoryIO(), $out = new InMemoryIO);
+        $this->assertEquals("lorem ipsumbar", $out->readAll());
+    }
 }

@@ -53,8 +53,26 @@ class Tokenizer
                 }
 
                 if ($this->stream->peek() === '(') {
+
                     $this->stream->read(); // (
-                    $token = new Token(Token::T_EXPRESSION, $this->readTil(')'));
+
+                    $value = "";
+                    $layers = 0;
+                    while (true) {
+                        if ($this->stream->peek() === '(') {
+                            $layers++;
+                        }
+                        if ($this->stream->peek() === ')') {
+                            if ($layers === 0) {
+                                break;
+                            }
+                            $layers--;
+                        }
+
+                        $value .= $this->stream->read();
+                    }
+
+                    $token = new Token(Token::T_EXPRESSION, $value);
                     $this->stream->read(); // )
                     return $token;
                 }
