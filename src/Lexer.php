@@ -2,12 +2,17 @@
 
 namespace Adamnicholson\Adamlang;
 
-class Tokenizer
+class Lexer
 {
     /**
      * @var Stream
      */
     private $stream;
+
+    /**
+     * @var Token
+     */
+    private $previous;
 
     /**
      * Tokenizer constructor.
@@ -16,92 +21,13 @@ class Tokenizer
     public function __construct(Stream $stream)
     {
         $this->stream = $stream;
+        $this->previous = new Token(Token::T_BOF);
     }
 
-    public function next(Token $previous): Token
+    public function next(): Token
     {
-        switch ($previous->getType()) {
-            case Token::T_BOF:
-            case Token::T_BOL:
-                $value = "";
-                while (true) {
-                    if ($this->stream->ended() || $this->stream->peek() === " ") {
-                        break;
-                    }
-                    $value .= $this->stream->read();
-                }
-                return new Token(Token::T_FUNCTION, $value);
-
-            case Token::T_FUNCTION:
-
-                if ($this->stream->ended()) {
-                    return new Token(Token::T_EOF);
-                }
-
-                if ($this->stream->peek() === " ") {
-                    return new Token(Token::T_FUNCTION_ARG_SEPARATOR, $this->stream->read());
-                }
-
-                throw new \RuntimeException("Expected EOF or ARG_SEPARATOR");
-
-            case Token::T_FUNCTION_ARG_SEPARATOR:
-                if ($this->stream->peek() === '"') {
-                    $this->stream->read(); // "
-                    $token = new Token(Token::T_STRING_LITERAL, $this->readTil('"'));
-                    $this->stream->read(); // "
-                    return $token;
-                }
-
-                if ($this->stream->peek() === '{') {
-                    $this->stream->read(); // (
-                    $value = $this->readTilLayerEnds('{', '}');
-                    $token = new Token(Token::T_INLINE_EXPRESSION, $value);
-                    $this->stream->read(); // )
-                    return $token;
-                }
-
-                if ($this->stream->peek() === '(') {
-                    $this->stream->read(); // (
-                    $value = $this->readTilLayerEnds('(', ')');
-                    $token = new Token(Token::T_EXPRESSION, $value);
-                    $this->stream->read(); // )
-                    return $token;
-                }
-
-                if (preg_match('/[a-z]+/', $this->stream->peek())) {
-                    return new Token(Token::T_CONSTANT, $this->readTilPatternOrEof('/[\s\n]+/'));
-                }
-
-                throw new \RuntimeException("Unexpected " . $this->stream->peek() . ", expecting \" or (");
-                break;
-
-            case Token::T_FUNCTION_ARG:
-                return new Token(Token::T_EOL, $this->stream->read());
-                break;
-
-            case Token::T_EXPRESSION:
-            case Token::T_CONSTANT:
-            case Token::T_INLINE_EXPRESSION:
-            case Token::T_STRING_LITERAL:
-            case Token::T_FUNCTION_ARG:
-                if ($this->stream->ended()) {
-                    return new Token(Token::T_EOF);
-                }
-
-                $nextChar = $this->stream->peek();
-
-                if ($nextChar === "\n") {
-                    return new Token(Token::T_EOL, $this->stream->read());
-                } elseif ($nextChar === " ") {
-                    return new Token(Token::T_FUNCTION_ARG_SEPARATOR, $this->stream->read());
-                } else {
-                    throw new \RuntimeException("Expecting EOL or ARG_SEPARATOR, got " . ord($nextChar));
-                }
-
-            default:
-                throw new \RuntimeException("Unexpected " . $previous->getType());
-
-        }
+        $this->previous = $this->getNext();
+        return $this->previous;
     }
 
     private function readTil(string $ends): string
@@ -148,5 +74,98 @@ class Tokenizer
         }
 
         return $value;
+    }
+
+    /**
+     * @return Token
+     */
+    private function getNext()
+    {
+        switch ($this->previous->getType()) {
+
+            case Token::T_BOF:
+            case Token::T_EOL:
+                return new Token(Token::T_BOL);
+
+            case Token::T_BOL:
+                $value = "";
+                while (true) {
+                    if ($this->stream->ended() || $this->stream->peek() === " ") {
+                        break;
+                    }
+                    $value .= $this->stream->read();
+                }
+                return new Token(Token::T_FUNCTION, $value);
+
+            case Token::T_FUNCTION:
+
+                if ($this->stream->ended()) {
+                    return new Token(Token::T_EOF);
+                }
+
+                if ($this->stream->peek() === " ") {
+                    return new Token(Token::T_FUNCTION_ARG_SEPARATOR, $this->stream->read());
+                }
+
+                throw new \RuntimeException("Expected EOF or ARG_SEPARATOR");
+
+            case Token::T_FUNCTION_ARG_SEPARATOR:
+                if ($this->stream->peek() === '"') {
+                    $this->stream->read(); // "
+                    $token = new Token(Token::T_STRING_LITERAL, $this->readTil('"'));
+                    $this->stream->read(); // "
+                    return $token;
+                }
+
+                if ($this->stream->peek() === '{') {
+                    $this->stream->read(); // (
+                    $value = $this->readTilLayerEnds('{', '}');
+                    $token = new Token(Token::T_INLINE_EXPRESSION, new Lexer(new InMemoryIO($value)));
+                    $this->stream->read(); // )
+                    return $token;
+                }
+
+                if ($this->stream->peek() === '(') {
+                    $this->stream->read(); // (
+                    $value = $this->readTilLayerEnds('(', ')');
+                    $token = new Token(Token::T_EXPRESSION, new Lexer(new InMemoryIO($value)));
+                    $this->stream->read(); // )
+                    return $token;
+                }
+
+                if (preg_match('/[a-z]+/', $this->stream->peek())) {
+                    return new Token(Token::T_CONSTANT, $this->readTilPatternOrEof('/[\s\n]+/'));
+                }
+
+                throw new \RuntimeException("Unexpected " . $this->stream->peek() . ", expecting \" or (");
+                break;
+
+            case Token::T_FUNCTION_ARG:
+                return new Token(Token::T_EOL, $this->stream->read());
+                break;
+
+            case Token::T_EXPRESSION:
+            case Token::T_CONSTANT:
+            case Token::T_INLINE_EXPRESSION:
+            case Token::T_STRING_LITERAL:
+            case Token::T_FUNCTION_ARG:
+                if ($this->stream->ended()) {
+                    return new Token(Token::T_EOF);
+                }
+
+                $nextChar = $this->stream->peek();
+
+                if ($nextChar === "\n") {
+                    return new Token(Token::T_EOL, $this->stream->read());
+                } elseif ($nextChar === " ") {
+                    return new Token(Token::T_FUNCTION_ARG_SEPARATOR, $this->stream->read());
+                } else {
+                    throw new \RuntimeException("Expecting EOL or ARG_SEPARATOR, got " . ord($nextChar));
+                }
+
+            default:
+                throw new \RuntimeException("Nothing can follow a " . $this->previous->getType());
+
+        }
     }
 }

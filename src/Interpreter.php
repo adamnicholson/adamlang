@@ -18,26 +18,20 @@ class Interpreter
      */
     public function run(Stream $stream, Input $input, Output $output)
     {
-        $script = '';
-        while (!$stream->ended()) {
-            $script .= $stream->read();
-        }
-
-        return $this->evaluateExpression(new Token(Token::T_EXPRESSION, $script), $input, $output);
+        return $this->evaluateExpression(
+            new Token(Token::T_EXPRESSION, new Lexer($stream)),
+            $input,
+            $output
+        );
     }
 
-    private function evaluateExpression(Token $expr, Input $input, Output $output)
+    public function evaluateExpression(Token $expr, Input $input, Output $output)
     {
-        $stream = new InMemoryIO($expr->getValue());
+        $lexer = $expr->getValue();
 
         $container = new Container;
         $container->instance(Input::class, $input);
         $container->instance(Output::class, $output);
-        $container->instance(Stream::class, $stream);
-
-        /** @var Tokenizer $tokenizer */
-        $tokenizer = $container->make(Tokenizer::class);
-        $container->instance(Tokenizer::class, $tokenizer);
 
         $scope = (object) [
             'constants' => [
@@ -46,7 +40,8 @@ class Interpreter
             ],
         ];
 
-        $prev = new Token(Token::T_BOF, "");
+
+        $prev = $lexer->next();
         $returns = null;
 
         while (true) {
@@ -58,11 +53,11 @@ class Interpreter
 
                 case Token::T_BOF:
                 case Token::T_EOL:
-                    $prev = new Token(Token::T_BOL);
+                    $prev = self::expect($lexer->next(), [Token::T_BOL]);
                     break;
 
                 case Token::T_BOL:
-                    $prev = $tokenizer->next($prev); // should be function
+                    $prev = self::expect($lexer->next(), [Token::T_FUNCTION]);
                     break;
 
                 case Token::T_FUNCTION:
@@ -75,41 +70,75 @@ class Interpreter
 
                     $args = [];
 
-                    $prev = $tokenizer->next($prev); // may be T_ARG_SEPARATOR or T_EOL or T_EOF
+                    $prev = self::expect($lexer->next(), [
+                        Token::T_FUNCTION_ARG_SEPARATOR,
+                        Token::T_EOF,
+                        Token::T_EOL
+                    ]);
 
                     while ($prev->getType() === Token::T_FUNCTION_ARG_SEPARATOR) {
 
-                        $prev = $tokenizer->next($prev); // get the ARGUMENT, ie. the thing after the T_ARG_SEPARATOR
+                        // Get the ARGUMENT
+                        $prev = self::expect($lexer->next(), [
+                            Token::T_STRING_LITERAL,
+                            Token::T_CONSTANT,
+                            Token::T_EXPRESSION,
+                            Token::T_INLINE_EXPRESSION,
+                        ]);
 
-                        if ($prev->getType() === Token::T_STRING_LITERAL) {
-                            $args[] = $prev->getValue();
-                        } elseif ($prev->getType() === Token::T_CONSTANT) {
-                            if (!isset($scope->constants[$prev->getValue()])) {
-                                throw new \RuntimeException("Const " . $prev->getValue() . " is not defined");
-                            }
-                            $args[] = $scope->constants[$prev->getValue()];
-                        } elseif ($prev->getType() === Token::T_EXPRESSION) {
-                            $args[] = $this->evaluateExpression($prev, $input, $output);
-                        } elseif ($prev->getType() === Token::T_INLINE_EXPRESSION) {
-                            $args[] = function () use ($prev, $input, $output) {
-                                $this->evaluateExpression($prev, $input, $output);
-                            };
-                        } else {
-                            throw new \RuntimeException("Only " . Token::T_STRING_LITERAL . " can be passed to functions - given " . $prev->getType());
+                        switch ($prev->getType()) {
+                            case Token::T_STRING_LITERAL:
+                                $args[] = $prev->getValue();
+                                break;
+
+                            case Token::T_CONSTANT:
+                                if (!isset($scope->constants[$prev->getValue()])) {
+                                    throw new \RuntimeException("Const " . $prev->getValue() . " is not defined");
+                                }
+                                $args[] = $scope->constants[$prev->getValue()];
+                                break;
+
+//                            case Token::T_INLINE_EXPRESSION:
+                            case Token::T_EXPRESSION:
+                                $args[] = $this->evaluateExpression($prev, $input, $output);
+                                break;
+
+                            case Token::T_INLINE_EXPRESSION:
+//                                var_dump();
+                                $args[] = $prev;
+                                break;
+
+                            default:
+                                throw new \RuntimeException("Unhandled token: " . $prev->getType());
                         }
 
-                        $prev = $tokenizer->next($prev);
+                        $prev = self::expect($lexer->next(), [
+                            Token::T_FUNCTION_ARG_SEPARATOR,
+                            Token::T_EOF,
+                            Token::T_EOL
+                        ]);
                     }
 
+//                    dump($args);
                     $returns = call_user_func_array([$fn, '__invoke'], $args);
-
                     break;
 
                 default:
-                    throw new \RuntimeException("Unexpected " . $prev->getType());
+                    throw new \RuntimeException("Unhandled token: " . $prev->getType());
             }
         }
 
         return $returns;
+    }
+
+    private static function expect(Token $token, array $tokens): Token
+    {
+        if (!in_array($token->getType(), $tokens)) {
+            throw new \RuntimeException(
+                "Unexpected " . $token->getType() . ". Expected one of: " . implode($tokens)
+            );
+        }
+
+        return $token;
     }
 }

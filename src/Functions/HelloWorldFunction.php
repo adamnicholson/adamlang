@@ -4,7 +4,7 @@ namespace Adamnicholson\Adamlang\Functions;
 
 use Adamnicholson\Adamlang\Output;
 
-class ShoutFunction
+class HelloWorldFunction
 {
     /**
      * @var Output
@@ -19,8 +19,8 @@ class ShoutFunction
         $this->output = $output;
     }
 
-    public function __invoke(...$strings)
+    public function __invoke()
     {
-        $this->output->write(strtoupper(implode('', $strings)));
+        $this->output->write("hello world");
     }
 }

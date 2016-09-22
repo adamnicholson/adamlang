@@ -28,12 +28,13 @@ class Token
     /**
      * Token constructor.
      * @param string $type
-     * @param string $value
+     * @param string|Lexer $value
      */
-    public function __construct(string $type, string $value = null)
+    public function __construct(string $type, $value = null)
     {
         $this->type = $type;
         $this->value = $value;
+//        dump($type);
     }
 
     /**
@@ -45,9 +46,9 @@ class Token
     }
 
     /**
-     * @return string|null
+     * @return string|null|Lexer
      */
-    public function getValue(): string
+    public function getValue()
     {
         return $this->value;
     }
