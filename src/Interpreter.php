@@ -40,7 +40,6 @@ class Interpreter
             ],
         ];
 
-
         $prev = $lexer->next();
         $returns = null;
 
@@ -97,7 +96,7 @@ class Interpreter
                                 }
                                 $args[] = $scope->constants[$prev->getValue()];
                                 break;
-                            
+
                             case Token::T_EXPRESSION:
                                 $args[] = $this->evaluateExpression($prev, $input, $output);
                                 break;

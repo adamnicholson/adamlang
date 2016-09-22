@@ -24,5 +24,10 @@ interface Stream
      */
     public function peek(): string;
 
+    /**
+     * Check if tbe stream has reached the end.
+     * 
+     * @return bool
+     */
     public function ended(): bool;
 }

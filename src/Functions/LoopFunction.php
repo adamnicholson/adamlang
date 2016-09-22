@@ -32,12 +32,10 @@ class LoopFunction
 
     public function __invoke(int $repeat, Token $callback)
     {
-        
-
         for ($i=1; $i<=$repeat; $i++) {
 
             $fn = new Token(
-                Token::T_INLINE_EXPRESSION,
+                Token::T_EXPRESSION,
                 new Lexer(clone $callback->getValue()->getStream())
             );
 

@@ -34,7 +34,6 @@ class Token
     {
         $this->type = $type;
         $this->value = $value;
-//        dump($type);
     }
 
     /**

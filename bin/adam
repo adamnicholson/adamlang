@@ -1,0 +1,12 @@
+#!/usr/bin/php
+<?php
+
+require __DIR__ . "/../vendor/autoload.php";
+
+$return = (new \Adamnicholson\Adamlang\Interpreter)->run(
+    new \Adamnicholson\Adamlang\InMemoryIO(file_get_contents($_SERVER['argv'][1])),
+    new \Adamnicholson\Adamlang\IO\System\Input,
+    new \Adamnicholson\Adamlang\IO\System\Output
+);
+
+echo "\n";
