@@ -157,6 +157,17 @@ CODE;
         $this->assertEquals("1", $out->readAll());
     }
 
+    public function test_conditionals_support_scalars_and_experssions_for_true_or_false_values()
+    {
+        $code = <<<CODE
+Perhaps true "1" "2"
+CODE;
+        $code = new InMemoryIO($code);
+
+        $returns = $this->interpreter->run($code, $in = new InMemoryIO(), $out = new InMemoryIO);
+        $this->assertEquals("1", $returns);
+    }
+
 
     public function test_conditional_else_statements()
     {
