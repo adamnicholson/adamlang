@@ -68,6 +68,10 @@ class Tokenizer
                     return $token;
                 }
 
+                if (preg_match('/[a-z]+/', $this->stream->peek())) {
+                    return new Token(Token::T_CONSTANT, $this->readTilPatternOrEof('/[\s\n]+/'));
+                }
+
                 throw new \RuntimeException("Unexpected " . $this->stream->peek() . ", expecting \" or (");
                 break;
 
@@ -76,6 +80,7 @@ class Tokenizer
                 break;
 
             case Token::T_EXPRESSION:
+            case Token::T_CONSTANT:
             case Token::T_INLINE_EXPRESSION:
             case Token::T_STRING_LITERAL:
             case Token::T_FUNCTION_ARG:
@@ -99,7 +104,7 @@ class Tokenizer
         }
     }
 
-    private function readTil(string $ends): string 
+    private function readTil(string $ends): string
     {
         $value = "";
         while (($char = $this->stream->peek()) != $ends) {
@@ -128,6 +133,20 @@ class Tokenizer
 
             $value .= $this->stream->read();
         }
+        return $value;
+    }
+
+    private function readTilPatternOrEof($pattern)
+    {
+        $value = "";
+        try {
+            while (!preg_match($pattern, ($char = $this->stream->peek()))) {
+                $value .= $this->stream->read();
+            }
+        } catch (\OutOfBoundsException $e) {
+            // EOF
+        }
+
         return $value;
     }
 }

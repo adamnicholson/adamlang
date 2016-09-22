@@ -24,6 +24,28 @@ CODE;
         $this->assertEquals("lorem ipsum", $returns);
     }
 
+    public function test_scalars_can_be_returned()
+    {
+        $code = <<<CODE
+Return "fizzybuzzy"
+CODE;
+        $code = new InMemoryIO($code);
+
+        $returns = $this->interpreter->run($code, new InMemoryIO, new InMemoryIO);
+        $this->assertEquals("fizzybuzzy", $returns);
+    }
+
+    public function test_booleans()
+    {
+        $code = <<<CODE
+Return true
+CODE;
+        $code = new InMemoryIO($code);
+
+        $returns = $this->interpreter->run($code, new InMemoryIO, new InMemoryIO);
+        $this->assertEquals(true, $returns);
+    }
+
     public function test_print()
     {
         $code = <<<CODE

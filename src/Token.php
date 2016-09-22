@@ -14,6 +14,7 @@ class Token
     const T_STRING_LITERAL = "T_STRING_LITERAL";
     const T_EXPRESSION = "T_EXPRESSION";
     const T_INLINE_EXPRESSION = "T_INLINE_EXPRESSION";
+    const T_CONSTANT = "T_CONSTANT";
 
     /**
      * @var string

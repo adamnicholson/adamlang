@@ -39,6 +39,12 @@ class Interpreter
         $tokenizer = $container->make(Tokenizer::class);
         $container->instance(Tokenizer::class, $tokenizer);
 
+        $scope = (object) [
+            'constants' => [
+                'true' => true
+            ],
+        ];
+
         $prev = new Token(Token::T_BOF, "");
         $returns = null;
 
@@ -76,6 +82,11 @@ class Interpreter
 
                         if ($prev->getType() === Token::T_STRING_LITERAL) {
                             $args[] = $prev->getValue();
+                        } elseif ($prev->getType() === Token::T_CONSTANT) {
+                            if (!isset($scope->constants[$prev->getValue()])) {
+                                throw new \RuntimeException("Const " . $prev->getValue() . " is not defined");
+                            }
+                            $args[] = $scope->constants[$prev->getValue()];
                         } elseif ($prev->getType() === Token::T_EXPRESSION) {
                             $args[] = $this->evaluateExpression($prev, $input, $output);
                         } elseif ($prev->getType() === Token::T_INLINE_EXPRESSION) {
