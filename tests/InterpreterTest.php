@@ -145,4 +145,38 @@ CODE;
         $this->interpreter->run($code, $in = new InMemoryIO(), $out = new InMemoryIO);
         $this->assertEquals("11111", $out->readAll());
     }
+
+    public function test_conditionals()
+    {
+        $code = <<<CODE
+Perhaps true {Print "1"} {Print "2"}
+CODE;
+        $code = new InMemoryIO($code);
+
+        $this->interpreter->run($code, $in = new InMemoryIO(), $out = new InMemoryIO);
+        $this->assertEquals("1", $out->readAll());
+    }
+
+
+    public function test_conditional_else_statements()
+    {
+        $code = <<<CODE
+Perhaps false {Print "1"} {Print "2"}
+CODE;
+        $code = new InMemoryIO($code);
+
+        $this->interpreter->run($code, $in = new InMemoryIO(), $out = new InMemoryIO);
+        $this->assertEquals("2", $out->readAll());
+    }
+
+    public function test_conditionals_can_handle_expressions()
+    {
+        $code = <<<CODE
+Perhaps {Return false} {Print "1"} {Print "2"}
+CODE;
+        $code = new InMemoryIO($code);
+
+        $this->interpreter->run($code, $in = new InMemoryIO(), $out = new InMemoryIO);
+        $this->assertEquals("2", $out->readAll());
+    }
 }

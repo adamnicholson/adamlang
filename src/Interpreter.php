@@ -41,7 +41,8 @@ class Interpreter
 
         $scope = (object) [
             'constants' => [
-                'true' => true
+                'true' => true,
+                'false' => false,
             ],
         ];
 
