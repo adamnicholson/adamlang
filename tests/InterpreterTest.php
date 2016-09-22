@@ -137,19 +137,17 @@ CODE;
 
     public function test_loops()
     {
-        $this->markTestSkipped();
         $code = <<<CODE
-Loop "3" {HelloWorld}
+Loop "3" {Print "1"}
 CODE;
         $code = new InMemoryIO($code);
 
         $this->interpreter->run($code, $in = new InMemoryIO(), $out = new InMemoryIO);
-        $this->assertEquals("helloworldhelloworldhelloworld", $out->readAll());
+        $this->assertEquals("111", $out->readAll());
     }
 
     public function test_conditionals()
     {
-        $this->markTestSkipped();
         $code = <<<CODE
 Perhaps true {Print "1"} {Print "2"}
 CODE;
@@ -173,7 +171,6 @@ CODE;
 
     public function test_conditional_else_statements()
     {
-        $this->markTestSkipped();
         $code = <<<CODE
 Perhaps false {Print "1"} {Print "2"}
 CODE;
@@ -185,9 +182,8 @@ CODE;
 
     public function test_conditionals_can_handle_expressions()
     {
-        $this->markTestSkipped();
         $code = <<<CODE
-Perhaps {Return false} {Print "1"} {Print "2"}
+Perhaps (Return false) {Print "1"} {Print "2"}
 CODE;
         $code = new InMemoryIO($code);
 

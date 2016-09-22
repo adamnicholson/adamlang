@@ -4,6 +4,7 @@ namespace Adamnicholson\Adamlang\Functions;
 
 use Adamnicholson\Adamlang\Input;
 use Adamnicholson\Adamlang\Interpreter;
+use Adamnicholson\Adamlang\Lexer;
 use Adamnicholson\Adamlang\Output;
 use Adamnicholson\Adamlang\Token;
 
@@ -31,11 +32,16 @@ class LoopFunction
 
     public function __invoke(int $repeat, Token $callback)
     {
-        $interpreter = new Interpreter;
+        
 
         for ($i=1; $i<=$repeat; $i++) {
-            $callback = clone $callback;
-            $interpreter->evaluateExpression($callback, $this->input, $this->output);
+
+            $fn = new Token(
+                Token::T_INLINE_EXPRESSION,
+                new Lexer(clone $callback->getValue()->getStream())
+            );
+
+            (new Interpreter)->evaluateExpression($fn, $this->input, $this->output);
         }
     }
 }

@@ -24,6 +24,11 @@ class Lexer
         $this->previous = new Token(Token::T_BOF);
     }
 
+    public function getStream()
+    {
+        return $this->stream;
+    }
+
     public function next(): Token
     {
         $this->previous = $this->getNext();

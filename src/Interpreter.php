@@ -97,14 +97,12 @@ class Interpreter
                                 }
                                 $args[] = $scope->constants[$prev->getValue()];
                                 break;
-
-//                            case Token::T_INLINE_EXPRESSION:
+                            
                             case Token::T_EXPRESSION:
                                 $args[] = $this->evaluateExpression($prev, $input, $output);
                                 break;
 
                             case Token::T_INLINE_EXPRESSION:
-//                                var_dump();
                                 $args[] = $prev;
                                 break;
 
@@ -119,7 +117,6 @@ class Interpreter
                         ]);
                     }
 
-//                    dump($args);
                     $returns = call_user_func_array([$fn, '__invoke'], $args);
                     break;
 
@@ -131,7 +128,7 @@ class Interpreter
         return $returns;
     }
 
-    private static function expect(Token $token, array $tokens): Token
+    public static function expect(Token $token, array $tokens): Token
     {
         if (!in_array($token->getType(), $tokens)) {
             throw new \RuntimeException(
