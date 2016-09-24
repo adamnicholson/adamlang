@@ -6,9 +6,12 @@ class ExecutableTest extends \PHPUnit_Framework_TestCase
 {
     public function test_executes()
     {
-        self::markTestSkipped();
-        
-        $output = shell_exec(__DIR__ . "/../bin/adam " . __DIR__ . "/../examples/loop.adam");
-        $this->assertEquals("Test: 0\nTest: 1\nTest: 2\nTest: 3\nTest: 4\n", $output);
+        $file = tmpfile();
+        fwrite($file, 'print "hello world"');
+        $meta_data = stream_get_meta_data($file);
+        $filename = $meta_data["uri"];
+        $output = shell_exec(__DIR__ . "/../bin/adam " . $filename);
+        $this->assertEquals("hello world", $output);
+        fclose($file);
     }
 }
