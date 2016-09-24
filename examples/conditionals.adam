@@ -1,1 +1,1 @@
-Perhaps true {Print "Value is TRUE!"} {Print "Value is FALSE!"}
+perhaps true {print "Value is TRUE!"} {print "Value is FALSE!"}

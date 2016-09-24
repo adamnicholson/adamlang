@@ -1,6 +1,6 @@
 <?php
 $code = <<<ADAMLANG
-Loop "5" {Print "Test: " :i EOL}
+loop "5" {print "Test: " :i EOL}
 ADAMLANG;
 $output = <<<TEXT
 Test: 0

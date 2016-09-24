@@ -72,9 +72,9 @@ class Interpreter
 
                 case Token::T_FUNCTION:
 
-                    $class = __NAMESPACE__."\\Functions\\" . $prev->getValue() . "Function";
+                    $class = $this->getFunctionClassName($prev->getValue());
                     if (!class_exists($class)) {
-                        throw new \RuntimeException("Function " . $prev->getValue() . " does not exist at " . $class);
+                        throw new \RuntimeException("Function " . $prev->getValue() . " does not exist");
                     }
                     $fn = $container->make($class);
 
@@ -149,5 +149,16 @@ class Interpreter
         }
 
         return $token;
+    }
+
+    /**
+     * @param $function
+     * @return string
+     */
+    private function getFunctionClassName($function)
+    {
+        $function = str_replace(' ', '', ucwords(str_replace('-', ' ', $function)));
+        $class = __NAMESPACE__ . "\\Functions\\{$function}Function";
+        return $class;
     }
 }
