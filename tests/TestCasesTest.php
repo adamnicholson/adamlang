@@ -18,7 +18,11 @@ class TestCasesTest extends \PHPUnit_Framework_TestCase
             $out = new \Adamnicholson\Adamlang\IO\InMemoryIO
         );
 
-        $this->assertEquals($output, $out->readAll());
+        $this->assertEquals(
+            $output,
+            $out->readAll(),
+            "---EXPECT---\n" . $output . "\n---EXPECT---\n---ACTUAL---\n" . $out->readAll() . "\n---ACTUAL---"
+        );
     }
 
     public function cases()
