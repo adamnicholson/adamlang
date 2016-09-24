@@ -2,8 +2,8 @@
 
 namespace Adamnicholson\Adamlang\Functions;
 
-use Adamnicholson\Adamlang\AssignmentScope;
-use Adamnicholson\Adamlang\Context;
+use Adamnicholson\Adamlang\Assignments;
+use Adamnicholson\Adamlang\InterpreterContext;
 use Adamnicholson\Adamlang\Input;
 use Adamnicholson\Adamlang\Interpreter;
 use Adamnicholson\Adamlang\Lexer;
@@ -13,15 +13,15 @@ use Adamnicholson\Adamlang\Token;
 class LoopFunction
 {
     /**
-     * @var Context
+     * @var InterpreterContext
      */
     private $context;
 
     /**
      * LoopFunction constructor.
-     * @param Context $context
+     * @param InterpreterContext $context
      */
-    public function __construct(Context $context)
+    public function __construct(InterpreterContext $context)
     {
         $this->context = $context;
     }
@@ -35,7 +35,7 @@ class LoopFunction
                 new Lexer(clone $callback->getValue()->getStream())
             );
 
-            $context = $this->context->withChangedScope(function (AssignmentScope $scope) use ($i) {
+            $context = $this->context->withChangedScope(function (Assignments $scope) use ($i) {
                 $scope->values['i'] = $i;
                 return $scope;
             });

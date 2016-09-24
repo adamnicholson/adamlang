@@ -2,6 +2,8 @@
 
 namespace Adamnicholson\Adamlang;
 
+use Adamnicholson\Adamlang\IO\InMemoryIO;
+
 class InterpreterTest extends \PHPUnit_Framework_TestCase
 {
     /** @var Interpreter */
@@ -77,6 +79,17 @@ CODE;
 
         $this->interpreter->run($code, $in = new InMemoryIO(), $out = new InMemoryIO);
         $this->assertEquals("HELLO", $out->readAll());
+    }
+
+    public function test_constants()
+    {
+        $code = <<<CODE
+Print "foo" EOL
+CODE;
+        $code = new InMemoryIO($code);
+
+        $this->interpreter->run($code, $in = new InMemoryIO, $out = new InMemoryIO);
+        $this->assertEquals("foo\n", $out->readAll());
     }
 
     public function test_print_twice()

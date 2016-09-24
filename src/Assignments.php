@@ -6,7 +6,7 @@ namespace Adamnicholson\Adamlang;
  * @property array $constants
  * @property array $values
  */
-class AssignmentScope
+class Assignments
 {
     public function __construct(array $data)
     {

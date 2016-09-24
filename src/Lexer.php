@@ -2,6 +2,8 @@
 
 namespace Adamnicholson\Adamlang;
 
+use Adamnicholson\Adamlang\IO\InMemoryIO;
+
 class Lexer
 {
     /**
@@ -144,11 +146,7 @@ class Lexer
                     return $token;
                 }
 
-                if (preg_match('/[a-z]+/', $this->stream->peek())) {
-                    return new Token(Token::T_CONSTANT, $this->readTilPatternOrEof('/[\s\n]+/'));
-                }
-
-                throw new \RuntimeException("Unexpected " . $this->stream->peek() . ", expecting \" or (");
+                return new Token(Token::T_CONSTANT, $this->readTilPatternOrEof('/[\s\n]+/'));
                 break;
 
             case Token::T_FUNCTION_ARG:

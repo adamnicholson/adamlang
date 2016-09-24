@@ -2,7 +2,7 @@
 
 namespace Adamnicholson\Adamlang;
 
-class Context
+class InterpreterContext
 {
     /**
      * @var Input
@@ -13,17 +13,17 @@ class Context
      */
     private $output;
     /**
-     * @var AssignmentScope
+     * @var Assignments
      */
     private $scope;
 
     /**
-     * Context constructor.
+     * InterpreterContext constructor.
      * @param Input $input
      * @param Output $output
-     * @param AssignmentScope $scope
+     * @param Assignments $scope
      */
-    public function __construct(Input $input, Output $output, AssignmentScope $scope)
+    public function __construct(Input $input, Output $output, Assignments $scope)
     {
         $this->input = $input;
         $this->output = $output;
@@ -31,9 +31,9 @@ class Context
     }
 
     /**
-     * @return AssignmentScope
+     * @return Assignments
      */
-    public function getScope(): AssignmentScope
+    public function getScope(): Assignments
     {
         return $this->scope;
     }

@@ -2,6 +2,8 @@
 
 namespace Adamnicholson\Adamlang;
 
+use Adamnicholson\Adamlang\IO\InMemoryIO;
+
 class LexerTest extends \PHPUnit_Framework_TestCase
 {
     public function test_tokenizing_simple_fn_returning_string()

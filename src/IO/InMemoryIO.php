@@ -1,6 +1,10 @@
 <?php
 
-namespace Adamnicholson\Adamlang;
+namespace Adamnicholson\Adamlang\IO;
+
+use Adamnicholson\Adamlang\Input;
+use Adamnicholson\Adamlang\Output;
+use Adamnicholson\Adamlang\Stream;
 
 class InMemoryIO implements Stream, Input, Output
 {

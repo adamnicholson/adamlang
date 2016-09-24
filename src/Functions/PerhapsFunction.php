@@ -2,22 +2,22 @@
 
 namespace Adamnicholson\Adamlang\Functions;
 
-use Adamnicholson\Adamlang\Context;
+use Adamnicholson\Adamlang\InterpreterContext;
 use Adamnicholson\Adamlang\Interpreter;
 use Adamnicholson\Adamlang\Token;
 
 class PerhapsFunction
 {
     /**
-     * @var Context
+     * @var InterpreterContext
      */
     private $context;
 
     /**
      * PerhapsFunction constructor.
-     * @param Context $context
+     * @param InterpreterContext $context
      */
-    public function __construct(Context $context)
+    public function __construct(InterpreterContext $context)
     {
         $this->context = $context;
     }

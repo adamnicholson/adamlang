@@ -18,13 +18,14 @@ class Interpreter
      */
     public function run(Stream $stream, Input $input, Output $output)
     {
-        $context = new Context(
+        $context = new InterpreterContext(
             $input,
             $output,
-            new AssignmentScope([
+            new Assignments([
                 'constants' => [
                     'true' => true,
                     'false' => false,
+                    'EOL' => PHP_EOL
                 ],
                 'values' => []
             ])
@@ -37,18 +38,18 @@ class Interpreter
 
     /**
      * @param Token $expr
-     * @param Context $context
+     * @param InterpreterContext $context
      * @return mixed|null
      */
-    public function evaluateExpression(Token $expr, Context $context)
+    public function evaluateExpression(Token $expr, InterpreterContext $context)
     {
         $lexer = $expr->getValue();
 
         $container = new Container;
-        $container->instance(Context::class, $context);
+        $container->instance(InterpreterContext::class, $context);
         $container->instance(Input::class, $context->getInput());
         $container->instance(Output::class, $context->getOutput());
-        $container->instance(AssignmentScope::class, $context->getScope());
+        $container->instance(Assignments::class, $context->getScope());
 
         $prev = $lexer->next();
         $returns = null;

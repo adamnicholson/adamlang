@@ -2,20 +2,20 @@
 
 namespace Adamnicholson\Adamlang\Functions;
 
-use Adamnicholson\Adamlang\AssignmentScope;
+use Adamnicholson\Adamlang\Assignments;
 
 class GetFunction
 {
     /**
-     * @var AssignmentScope
+     * @var Assignments
      */
     private $scope;
 
     /**
      * GetFunction constructor.
-     * @param AssignmentScope $scope
+     * @param Assignments $scope
      */
-    public function __construct(AssignmentScope $scope)
+    public function __construct(Assignments $scope)
     {
         $this->scope = $scope;
     }
