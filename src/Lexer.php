@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace Adamnicholson\Adamlang;
 
@@ -17,6 +17,10 @@ class Lexer
      * @var Token
      */
     private $previous;
+    /**
+     * @var array|Token[]
+     */
+    private $collected = [];
 
     /**
      * Tokenizer constructor.
@@ -35,6 +39,7 @@ class Lexer
 
     public function next(): Token
     {
+        $this->collected[] = $this->previous;
         $this->previous = $this->getNext();
         return $this->previous;
     }
@@ -138,7 +143,7 @@ class Lexer
                     }
 
                     if (preg_match("/[0-9]/", $this->stream->peek())) {
-                        return new Token(Token::T_INTEGER, (int) $this->readTilPatternOrEof('/[\s\n]/'));
+                        return new Token(Token::T_INTEGER, (int)$this->readTilPatternOrEof('/[\s\n]/'));
                     }
 
                     if ($this->stream->peek() === '{') {
@@ -186,12 +191,30 @@ class Lexer
                     }
 
                 default:
-                    throw new \RuntimeException("Nothing can follow a " . $this->previous->getType());
+                    throw new \RuntimeException("Unexpected " . $this->previous->getType() . " after " . end($this->collected)->getType() . ". Stack trace:\n" . $this->createStackTraceAsString());
 
             }
         } catch (\OutOfBoundsException $e) {
             throw new \OutOfBoundsException("Unexpected end of file after " . $this->previous->getType(), 0, $e);
         }
 
+    }
+
+    /**
+     * @return string
+     */
+    private function createStackTraceAsString()
+    {
+        $maxTokenLength = 30;
+        $stack = [];
+
+        foreach ($this->collected as $token) {
+            $stack[] =
+                $token->getType()
+                . str_repeat(" ", $maxTokenLength - strlen($token->getType()))
+                . ($token->getValue() instanceof Lexer ? ">" : $token->getValue());
+        }
+
+        return implode("\n", $stack);
     }
 }
