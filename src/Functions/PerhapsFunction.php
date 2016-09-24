@@ -38,7 +38,7 @@ class PerhapsFunction
     private function getValue($expression)
     {
         if ($expression instanceof Token) {
-            (new Interpreter)->evaluateExpression($expression, $this->context);
+            return (new Interpreter)->evaluateExpression($expression, $this->context);
         }
 
         return $expression;
