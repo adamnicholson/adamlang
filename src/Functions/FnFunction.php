@@ -53,7 +53,7 @@ class FnFunction
                 return $assignments;
             });
 
-            (new Interpreter)->evaluateExpression($callback, $context);
+            return (new Interpreter)->evaluateExpression($callback, $context);
         };
     }
 }
