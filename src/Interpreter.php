@@ -27,7 +27,8 @@ class Interpreter
                     'false' => false,
                     'EOL' => PHP_EOL
                 ],
-                'values' => []
+                'values' => [],
+                'functions' => [],
             ])
         );
         

@@ -5,6 +5,7 @@ namespace Adamnicholson\Adamlang;
 /**
  * @property array $constants
  * @property array $values
+ * @property array $functions
  */
 class Assignments
 {
