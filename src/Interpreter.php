@@ -18,27 +18,37 @@ class Interpreter
      */
     public function run(Stream $stream, Input $input, Output $output)
     {
-        return $this->evaluateExpression(
-            new Token(Token::T_EXPRESSION, new Lexer($stream)),
+        $context = new Context(
             $input,
-            $output
+            $output,
+            new AssignmentScope([
+                'constants' => [
+                    'true' => true,
+                    'false' => false,
+                ],
+                'values' => []
+            ])
+        );
+        
+        return $this->evaluateExpression(
+            new Token(Token::T_EXPRESSION, new Lexer($stream)), $context
         );
     }
 
-    public function evaluateExpression(Token $expr, Input $input, Output $output)
+    /**
+     * @param Token $expr
+     * @param Context $context
+     * @return mixed|null
+     */
+    public function evaluateExpression(Token $expr, Context $context)
     {
         $lexer = $expr->getValue();
 
         $container = new Container;
-        $container->instance(Input::class, $input);
-        $container->instance(Output::class, $output);
-
-        $scope = (object) [
-            'constants' => [
-                'true' => true,
-                'false' => false,
-            ],
-        ];
+        $container->instance(Context::class, $context);
+        $container->instance(Input::class, $context->getInput());
+        $container->instance(Output::class, $context->getOutput());
+        $container->instance(AssignmentScope::class, $context->getScope());
 
         $prev = $lexer->next();
         $returns = null;
@@ -83,6 +93,7 @@ class Interpreter
                             Token::T_CONSTANT,
                             Token::T_EXPRESSION,
                             Token::T_INLINE_EXPRESSION,
+                            Token::T_VALUE_REFERENCE,
                         ]);
 
                         switch ($prev->getType()) {
@@ -91,18 +102,19 @@ class Interpreter
                                 break;
 
                             case Token::T_CONSTANT:
-                                if (!isset($scope->constants[$prev->getValue()])) {
-                                    throw new \RuntimeException("Const " . $prev->getValue() . " is not defined");
-                                }
-                                $args[] = $scope->constants[$prev->getValue()];
+                                $args[] = $context->getScope()->getConstant($prev->getValue());
                                 break;
 
                             case Token::T_EXPRESSION:
-                                $args[] = $this->evaluateExpression($prev, $input, $output);
+                                $args[] = $this->evaluateExpression($prev, $context);
                                 break;
 
                             case Token::T_INLINE_EXPRESSION:
                                 $args[] = $prev;
+                                break;
+
+                            case Token::T_VALUE_REFERENCE:
+                                $args[] = $context->getScope()->getValue($prev->getValue());
                                 break;
 
                             default:
@@ -131,7 +143,7 @@ class Interpreter
     {
         if (!in_array($token->getType(), $tokens)) {
             throw new \RuntimeException(
-                "Unexpected " . $token->getType() . ". Expected one of: " . implode($tokens)
+                "Unexpected " . $token->getType() . ". Expected one of: " . implode(", ", $tokens)
             );
         }
 

@@ -61,4 +61,22 @@ class LexerTest extends \PHPUnit_Framework_TestCase
             $this->assertEquals(new Token(Token::T_STRING_LITERAL, "hello"), $expr->getValue()->next());
             $this->assertEquals(Token::T_EOF, $expr->getValue()->next()->getType());
     }
+
+    public function test_lexing_inline_expressions_with_counter()
+    {
+        $lexer = (new Lexer(new InMemoryIO('Loop "3" {Print :i}')));
+
+        $this->assertEquals(new Token(Token::T_BOL), $lexer->next());
+        $this->assertEquals(new Token(Token::T_FUNCTION, "Loop"), $lexer->next());
+        $this->assertEquals(Token::T_FUNCTION_ARG_SEPARATOR, $lexer->next()->getType());
+        $this->assertEquals(new Token(Token::T_STRING_LITERAL, "3"), $lexer->next());
+        $this->assertEquals(Token::T_FUNCTION_ARG_SEPARATOR, $lexer->next()->getType());
+        $expr = $lexer->next();
+        $this->assertEquals(Token::T_INLINE_EXPRESSION, $expr->getType());
+            $this->assertEquals(Token::T_BOL, $expr->getValue()->next()->getType());
+            $this->assertEquals(new Token(Token::T_FUNCTION, "Print"), $expr->getValue()->next());
+            $this->assertEquals(Token::T_FUNCTION_ARG_SEPARATOR, $expr->getValue()->next()->getType());
+            $this->assertEquals(new Token(Token::T_VALUE_REFERENCE, "i"), $expr->getValue()->next());
+            $this->assertEquals(Token::T_EOF, $expr->getValue()->next()->getType());
+    }
 }

@@ -122,6 +122,12 @@ class Lexer
                     return $token;
                 }
 
+                if ($this->stream->peek() === ':') {
+                    $this->stream->read(); // "
+                    $token = new Token(Token::T_VALUE_REFERENCE, $this->readTilPatternOrEof('/[\s\n]/'));
+                    return $token;
+                }
+
                 if ($this->stream->peek() === '{') {
                     $this->stream->read(); // (
                     $value = $this->readTilLayerEnds('{', '}');
@@ -152,6 +158,7 @@ class Lexer
             case Token::T_EXPRESSION:
             case Token::T_CONSTANT:
             case Token::T_INLINE_EXPRESSION:
+            case Token::T_VALUE_REFERENCE:
             case Token::T_STRING_LITERAL:
             case Token::T_FUNCTION_ARG:
                 if ($this->stream->ended()) {

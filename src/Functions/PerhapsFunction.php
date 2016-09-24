@@ -2,32 +2,24 @@
 
 namespace Adamnicholson\Adamlang\Functions;
 
-use Adamnicholson\Adamlang\Input;
+use Adamnicholson\Adamlang\Context;
 use Adamnicholson\Adamlang\Interpreter;
-use Adamnicholson\Adamlang\Lexer;
-use Adamnicholson\Adamlang\Output;
 use Adamnicholson\Adamlang\Token;
 
 class PerhapsFunction
 {
     /**
-     * @var Input
+     * @var Context
      */
-    private $input;
-    /**
-     * @var Output
-     */
-    private $output;
+    private $context;
 
     /**
      * PerhapsFunction constructor.
-     * @param Input $input
-     * @param Output $output
+     * @param Context $context
      */
-    public function __construct(Input $input, Output $output)
+    public function __construct(Context $context)
     {
-        $this->input = $input;
-        $this->output = $output;
+        $this->context = $context;
     }
 
     /**
@@ -46,7 +38,7 @@ class PerhapsFunction
     private function getValue($expression)
     {
         if ($expression instanceof Token) {
-            (new Interpreter)->evaluateExpression($expression, $this->input, $this->output);
+            (new Interpreter)->evaluateExpression($expression, $this->context);
         }
 
         return $expression;

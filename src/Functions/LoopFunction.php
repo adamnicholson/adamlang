@@ -2,6 +2,8 @@
 
 namespace Adamnicholson\Adamlang\Functions;
 
+use Adamnicholson\Adamlang\AssignmentScope;
+use Adamnicholson\Adamlang\Context;
 use Adamnicholson\Adamlang\Input;
 use Adamnicholson\Adamlang\Interpreter;
 use Adamnicholson\Adamlang\Lexer;
@@ -11,35 +13,34 @@ use Adamnicholson\Adamlang\Token;
 class LoopFunction
 {
     /**
-     * @var Input
+     * @var Context
      */
-    private $input;
-    /**
-     * @var Output
-     */
-    private $output;
+    private $context;
 
     /**
      * LoopFunction constructor.
-     * @param Input $input
-     * @param Output $output
+     * @param Context $context
      */
-    public function __construct(Input $input, Output $output)
+    public function __construct(Context $context)
     {
-        $this->input = $input;
-        $this->output = $output;
+        $this->context = $context;
     }
 
     public function __invoke(int $repeat, Token $callback)
     {
-        for ($i=1; $i<=$repeat; $i++) {
+        for ($i=0; $i<$repeat; $i++) {
 
             $fn = new Token(
                 Token::T_EXPRESSION,
                 new Lexer(clone $callback->getValue()->getStream())
             );
 
-            (new Interpreter)->evaluateExpression($fn, $this->input, $this->output);
+            $context = $this->context->withChangedScope(function (AssignmentScope $scope) use ($i) {
+                $scope->values['i'] = $i;
+                return $scope;
+            });
+
+            (new Interpreter)->evaluateExpression($fn, $context);
         }
     }
 }

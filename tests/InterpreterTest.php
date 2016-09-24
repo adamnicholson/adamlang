@@ -146,6 +146,28 @@ CODE;
         $this->assertEquals("111", $out->readAll());
     }
 
+    public function test_loops_with_counter_reference()
+    {
+        $code = <<<CODE
+Loop "3" {Print (Get "i")}
+CODE;
+        $code = new InMemoryIO($code);
+
+        $this->interpreter->run($code, $in = new InMemoryIO(), $out = new InMemoryIO);
+        $this->assertEquals("012", $out->readAll());
+    }
+
+    public function test_loops_with_counter_reference_shorthand()
+    {
+        $code = <<<CODE
+Loop "3" {Print :i}
+CODE;
+        $code = new InMemoryIO($code);
+
+        $this->interpreter->run($code, $in = new InMemoryIO(), $out = new InMemoryIO);
+        $this->assertEquals("012", $out->readAll());
+    }
+
     public function test_conditionals()
     {
         $code = <<<CODE
