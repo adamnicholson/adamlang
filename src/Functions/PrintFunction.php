@@ -21,6 +21,12 @@ class PrintFunction
 
     public function __invoke(...$strings)
     {
+        foreach ($strings as $string) {
+            if (!is_string($string)) {
+                throw new \RuntimeException("Only strings may be printed, given " . gettype($string));
+            }
+        }
+
         $this->output->write(implode('', $strings));
     }
 }

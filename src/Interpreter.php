@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Adamnicholson\Adamlang;
 
 use Illuminate\Container\Container;
@@ -97,6 +99,7 @@ class Interpreter
                         // Get the ARGUMENT
                         $prev = self::expect($lexer->next(), [
                             Token::T_STRING_LITERAL,
+                            Token::T_INTEGER,
                             Token::T_CONSTANT,
                             Token::T_EXPRESSION,
                             Token::T_INLINE_EXPRESSION,
@@ -105,6 +108,7 @@ class Interpreter
 
                         switch ($prev->getType()) {
                             case Token::T_STRING_LITERAL:
+                            case Token::T_INTEGER:
                                 $args[] = $prev->getValue();
                                 break;
 
@@ -112,6 +116,10 @@ class Interpreter
                                 $args[] = $context->getScope()->getConstant($prev->getValue());
                                 break;
 
+                            case Token::T_VALUE_REFERENCE:
+                                $args[] = $context->getScope()->getValue($prev->getValue());
+                                break;
+                            
                             case Token::T_EXPRESSION:
                                 $args[] = $this->evaluateExpression($prev, $context);
                                 break;
@@ -120,9 +128,6 @@ class Interpreter
                                 $args[] = $prev;
                                 break;
 
-                            case Token::T_VALUE_REFERENCE:
-                                $args[] = $context->getScope()->getValue($prev->getValue());
-                                break;
 
                             default:
                                 throw new \RuntimeException("Unhandled token: " . $prev->getType());

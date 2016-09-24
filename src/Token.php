@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Adamnicholson\Adamlang;
 
 class Token
@@ -16,6 +18,7 @@ class Token
     const T_INLINE_EXPRESSION = "T_INLINE_EXPRESSION";
     const T_CONSTANT = "T_CONSTANT";
     const T_VALUE_REFERENCE = "T_VALUE_REFERENCE";
+    const T_INTEGER = "T_INTEGER";
 
     /**
      * @var string

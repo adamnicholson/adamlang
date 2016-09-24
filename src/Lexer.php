@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Adamnicholson\Adamlang;
 
 use Adamnicholson\Adamlang\IO\InMemoryIO;
@@ -125,9 +127,12 @@ class Lexer
                 }
 
                 if ($this->stream->peek() === ':') {
-                    $this->stream->read(); // "
-                    $token = new Token(Token::T_VALUE_REFERENCE, $this->readTilPatternOrEof('/[\s\n]/'));
-                    return $token;
+                    $this->stream->read(); // :
+                    return new Token(Token::T_VALUE_REFERENCE, $this->readTilPatternOrEof('/[\s\n]/'));
+                }
+
+                if (preg_match("/[0-9]/", $this->stream->peek())) {
+                    return new Token(Token::T_INTEGER, (int) $this->readTilPatternOrEof('/[\s\n]/'));
                 }
 
                 if ($this->stream->peek() === '{') {
@@ -158,6 +163,7 @@ class Lexer
             case Token::T_INLINE_EXPRESSION:
             case Token::T_VALUE_REFERENCE:
             case Token::T_STRING_LITERAL:
+            case Token::T_INTEGER:
             case Token::T_FUNCTION_ARG:
                 if ($this->stream->ended()) {
                     return new Token(Token::T_EOF);

@@ -151,7 +151,7 @@ CODE;
     public function test_loops()
     {
         $code = <<<CODE
-Loop "3" {Print "1"}
+Loop 3 {Print "1"}
 CODE;
         $code = new InMemoryIO($code);
 
@@ -162,7 +162,7 @@ CODE;
     public function test_loops_with_counter_reference()
     {
         $code = <<<CODE
-Loop "3" {Print (Get "i")}
+loop 3 {print (str :i)}
 CODE;
         $code = new InMemoryIO($code);
 
@@ -173,7 +173,7 @@ CODE;
     public function test_loops_with_counter_reference_shorthand()
     {
         $code = <<<CODE
-Loop "3" {Print :i}
+loop 3 {print (str :i)}
 CODE;
         $code = new InMemoryIO($code);
 

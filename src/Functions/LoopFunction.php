@@ -26,8 +26,12 @@ class LoopFunction
         $this->context = $context;
     }
 
-    public function __invoke(int $repeat, Token $callback)
+    public function __invoke($repeat, Token $callback)
     {
+        if (!is_int($repeat)) {
+            throw new \RuntimeException("First argument to loop must be an integer, given " . gettype($repeat));
+        }
+
         for ($i=0; $i<$repeat; $i++) {
 
             $fn = new Token(

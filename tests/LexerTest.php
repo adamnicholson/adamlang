@@ -16,6 +16,18 @@ class LexerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(new Token(Token::T_STRING_LITERAL, "foo"), $lexer->next());
     }
 
+    public function test_lexing_integers()
+    {
+        $lexer = (new Lexer(new InMemoryIO('Return 4')));
+
+        $this->assertEquals(new Token(Token::T_BOL), $lexer->next());
+        $this->assertEquals(new Token(Token::T_FUNCTION, "Return"), $lexer->next());
+        $this->assertEquals(Token::T_FUNCTION_ARG_SEPARATOR, $lexer->next()->getType());
+        $int = $lexer->next();
+        $this->assertEquals(new Token(Token::T_INTEGER, 4), $int);
+        $this->assertTrue(is_int($int->getValue()));
+    }
+
     public function test_tokenizing_fn_with_multiple_args()
     {
         $lexer = (new Lexer(new InMemoryIO('Print "foo" " " "bar"')));
