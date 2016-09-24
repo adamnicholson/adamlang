@@ -29,10 +29,31 @@ class FnFunction
         $this->context = $context;
     }
 
-    public function __invoke($name, Token $callback)
+
+    public function __invoke(...$args)
     {
-        $this->scope->functions[$name] = function () use ($callback) {
-            (new Interpreter)->evaluateExpression($callback, $this->context);
+        $name = array_shift($args);
+
+        $callback = array_pop($args);
+
+        $requiredArgs = $args;
+
+        $this->scope->functions[$name] = function (...$args) use ($name, $callback, $requiredArgs) {
+
+            if (count($args) !== count($requiredArgs)) {
+                throw new \RuntimeException(
+                    "$name requires " . count($requiredArgs) . " arguments; " . count($args) . " given"
+                );
+            }
+
+            $context = $this->context->withChangedScope(function (Assignments $assignments) use ($requiredArgs, $args) {
+                while (count($args) > 0) {
+                    $assignments->values[array_shift($requiredArgs)] = array_shift($args);
+                }
+                return $assignments;
+            });
+
+            (new Interpreter)->evaluateExpression($callback, $context);
         };
     }
 }

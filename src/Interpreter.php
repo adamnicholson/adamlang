@@ -73,11 +73,16 @@ class Interpreter
 
                 case Token::T_FUNCTION:
 
-                    $class = $this->getFunctionClassName($prev->getValue());
-                    if (!class_exists($class)) {
+                    $fnName = $prev->getValue();
+
+                    $class = $this->getFunctionClassName($fnName);
+                    if (class_exists($class)) {
+                        $fn = $container->make($class);
+                    } elseif (isset($context->getScope()->functions[$fnName])) {
+                        $fn = $context->getScope()->functions[$fnName];
+                    } else {
                         throw new \RuntimeException("Function " . $prev->getValue() . " does not exist");
                     }
-                    $fn = $container->make($class);
 
                     $args = [];
 
@@ -130,7 +135,7 @@ class Interpreter
                         ]);
                     }
 
-                    $returns = call_user_func_array([$fn, '__invoke'], $args);
+                    $returns = call_user_func_array($fn, $args);
                     break;
 
                 default:

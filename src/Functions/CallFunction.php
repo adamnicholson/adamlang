@@ -27,8 +27,8 @@ class CallFunction
         $this->context = $context;
     }
 
-    public function __invoke($name)
+    public function __invoke($name, ...$args)
     {
-        call_user_func_array($this->scope->functions[$name], []);
+        call_user_func_array($this->scope->functions[$name], $args);
     }
 }
