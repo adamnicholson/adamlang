@@ -8,5 +8,3 @@ $return = (new \Adamnicholson\Adamlang\Interpreter)->run(
     new \Adamnicholson\Adamlang\IO\System\Input,
     new \Adamnicholson\Adamlang\IO\System\Output
 );
-
-echo "\n";
