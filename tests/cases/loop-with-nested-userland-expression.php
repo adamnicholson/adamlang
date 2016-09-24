@@ -1,6 +1,7 @@
 <?php
 $code = <<<ADAMLANG
-loop 5 {print "Test: " (str (perhaps (equals 3 :i) "THREE" (str :i))) EOL}
+fn "isthree" "num" {equals 3 :num}
+loop 5 {print "Test: " (perhaps (isthree :i) "THREE" (str :i)) EOL}
 ADAMLANG;
 $output = <<<TEXT
 Test: 0

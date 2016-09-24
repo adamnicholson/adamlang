@@ -46,7 +46,7 @@ class Interpreter
      */
     public function evaluateExpression(Token $expr, InterpreterContext $context)
     {
-        $lexer = $expr->getValue();
+        $lexer = new Lexer(clone $expr->getValue()->getStream());
 
         $container = new Container;
         $container->instance(InterpreterContext::class, $context);
@@ -119,7 +119,7 @@ class Interpreter
                             case Token::T_VALUE_REFERENCE:
                                 $args[] = $context->getScope()->getValue($prev->getValue());
                                 break;
-                            
+
                             case Token::T_EXPRESSION:
                                 $args[] = $this->evaluateExpression($prev, $context);
                                 break;

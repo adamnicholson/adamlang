@@ -8,7 +8,6 @@ class Token
 {
     const T_FUNCTION = "T_FUNCTION";
     const T_FUNCTION_ARG_SEPARATOR = "T_FUNCTION_ARG_SEPARATOR";
-    const T_FUNCTION_ARG = "T_FUNCTION_ARG";
     const T_BOF = "T_BOF";
     const T_EOF = "T_EOF";
     const T_EOL = "T_EOL";

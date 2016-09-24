@@ -165,17 +165,12 @@ class Lexer
                     return new Token(Token::T_CONSTANT, $this->readTilPatternOrEof('/[\s\n]+/'));
                     break;
 
-                case Token::T_FUNCTION_ARG:
-                    return new Token(Token::T_EOL, $this->stream->read());
-                    break;
-
                 case Token::T_EXPRESSION:
                 case Token::T_CONSTANT:
                 case Token::T_INLINE_EXPRESSION:
                 case Token::T_VALUE_REFERENCE:
                 case Token::T_STRING_LITERAL:
                 case Token::T_INTEGER:
-                case Token::T_FUNCTION_ARG:
                     if ($this->stream->ended()) {
                         return new Token(Token::T_EOF);
                     }
