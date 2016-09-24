@@ -143,7 +143,12 @@ class Lexer
                     }
 
                     if (preg_match("/[0-9]/", $this->stream->peek())) {
-                        return new Token(Token::T_INTEGER, (int)$this->readTilPatternOrEof('/[\s\n]/'));
+                        $value = $this->readTilPatternOrEof('/[\s\n]/');
+                        if (preg_match("/^[0-9]+\.\.[0-9]+$/", $value)) {
+                            $values = array_map(function ($v) { return (int) $v; }, preg_split("/\.\./", $value));
+                            return new Token(Token::T_INTEGER_RANGE, $values);
+                        }
+                        return new Token(Token::T_INTEGER, (int) $value);
                     }
 
                     if ($this->stream->peek() === '{') {
@@ -171,6 +176,7 @@ class Lexer
                 case Token::T_VALUE_REFERENCE:
                 case Token::T_STRING_LITERAL:
                 case Token::T_INTEGER:
+                case Token::T_INTEGER_RANGE:
                     if ($this->stream->ended()) {
                         return new Token(Token::T_EOF);
                     }
@@ -207,7 +213,7 @@ class Lexer
             $stack[] =
                 $token->getType()
                 . str_repeat(" ", $maxTokenLength - strlen($token->getType()))
-                . ($token->getValue() instanceof Lexer ? ">" : $token->getValue());
+                . ((is_int($token->getValue()) || is_string($token->getValue())) ? $token->getValue() : null);
         }
 
         return implode("\n", $stack);

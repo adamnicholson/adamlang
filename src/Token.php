@@ -18,6 +18,7 @@ class Token
     const T_CONSTANT = "T_CONSTANT";
     const T_VALUE_REFERENCE = "T_VALUE_REFERENCE";
     const T_INTEGER = "T_INTEGER";
+    const T_INTEGER_RANGE = "T_INTEGER_RANGE";
 
     /**
      * @var string

@@ -28,6 +28,16 @@ class LexerTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(is_int($int->getValue()));
     }
 
+    public function test_lexing_ranges()
+    {
+        $lexer = (new Lexer(new InMemoryIO('Return 3..5')));
+
+        $this->assertEquals(new Token(Token::T_BOL), $lexer->next());
+        $this->assertEquals(new Token(Token::T_FUNCTION, "Return"), $lexer->next());
+        $this->assertEquals(Token::T_FUNCTION_ARG_SEPARATOR, $lexer->next()->getType());
+        $this->assertEquals(new Token(Token::T_INTEGER_RANGE, [3,5]), $lexer->next());
+    }
+
     public function test_tokenizing_fn_with_multiple_args()
     {
         $lexer = (new Lexer(new InMemoryIO('Print "foo" " " "bar"')));

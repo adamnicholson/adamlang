@@ -28,11 +28,9 @@ class LoopFunction
 
     public function __invoke($repeat, Token $callback)
     {
-        if (!is_int($repeat)) {
-            throw new \RuntimeException("First argument to loop must be an integer, given " . gettype($repeat));
-        }
+        $range = $this->getRange($repeat);
 
-        for ($i=0; $i<$repeat; $i++) {
+        for ($i=$range[0]; $i<=$range[1]; $i++) {
 
             $fn = new Token(
                 Token::T_EXPRESSION,
@@ -46,5 +44,18 @@ class LoopFunction
 
             (new Interpreter)->evaluateExpression($fn, $context);
         }
+    }
+
+    private function getRange($repeat)
+    {
+        if ($repeat instanceof Token && $repeat->getType() === Token::T_INTEGER_RANGE) {
+            return $repeat->getValue();
+        }
+
+        if (is_int($repeat)) {
+            return [0, $repeat-1];
+        }
+
+        throw new \RuntimeException("First argument to loop must be an integer or integer range, given " . gettype($repeat));
     }
 }

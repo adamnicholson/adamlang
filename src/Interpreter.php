@@ -103,6 +103,7 @@ class Interpreter
                             Token::T_CONSTANT,
                             Token::T_EXPRESSION,
                             Token::T_INLINE_EXPRESSION,
+                            Token::T_INTEGER_RANGE,
                             Token::T_VALUE_REFERENCE,
                         ]);
 
@@ -124,6 +125,7 @@ class Interpreter
                                 $args[] = $this->evaluateExpression($prev, $context);
                                 break;
 
+                            case Token::T_INTEGER_RANGE:
                             case Token::T_INLINE_EXPRESSION:
                                 $args[] = $prev;
                                 break;
